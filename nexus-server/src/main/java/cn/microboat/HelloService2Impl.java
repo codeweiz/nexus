@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class HelloService2Impl implements HelloService {
 
+    // 静态代码块，用于初始化
     static {
         System.out.println("HelloServiceImpl2被创建");
     }

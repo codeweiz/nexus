@@ -10,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 @RpcService(group = "test1", version = "version1")
 public class HelloServiceImpl implements HelloService {
 
+    // 静态代码块，用于初始化
     static {
         System.out.println("HelloServiceImpl被创建");
     }
