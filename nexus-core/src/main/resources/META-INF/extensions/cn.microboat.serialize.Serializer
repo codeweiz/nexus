@@ -1,0 +1,3 @@
+kyro=cn.microboat.serialize.kyro.KryoSerializer
+protostuff=cn.microboat.serialize.protostuff.ProtostuffSerializer
+hessian=cn.microboat.serialize.hessian.HessianSerializer
