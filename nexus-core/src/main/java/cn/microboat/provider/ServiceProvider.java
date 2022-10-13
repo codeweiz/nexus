@@ -3,6 +3,8 @@ package cn.microboat.provider;
 import cn.microboat.config.RpcServiceConfig;
 
 /**
+ * 服务提供者
+ *
  * @author zhouwei
  */
 public interface ServiceProvider {

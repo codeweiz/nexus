@@ -13,6 +13,8 @@ import org.springframework.core.type.StandardAnnotationMetadata;
 import org.springframework.stereotype.Component;
 
 /**
+ * 自定义扫描器注册器
+ *
  * @author zhouwei
  */
 @Slf4j

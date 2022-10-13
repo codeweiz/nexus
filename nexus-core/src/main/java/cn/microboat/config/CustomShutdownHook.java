@@ -10,6 +10,8 @@ import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
 
 /**
+ * 自定义关闭钩子
+ *
  * @author zhouwei
  */
 @Slf4j
@@ -25,9 +27,11 @@ public class CustomShutdownHook {
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             try {
                 InetSocketAddress inetSocketAddress = new InetSocketAddress(InetAddress.getLocalHost().getHostAddress(), NettyRpcServer.PORT);
+                // 清楚所有注册在 zookeeper 上的服务
                 CuratorUtils.clearRegistry(CuratorUtils.getZkClient(), inetSocketAddress);
             } catch (UnknownHostException ignored) {
             }
+            // shutDown 所有线程池
             ThreadPoolFactoryUtil.shutDownAllThreadPool();
         }));
     }

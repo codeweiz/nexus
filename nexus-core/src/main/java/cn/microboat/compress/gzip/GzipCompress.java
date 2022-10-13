@@ -9,6 +9,8 @@ import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
 /**
+ * GZIP实现类
+ *
  * @author zhouwei
  */
 public class GzipCompress implements Compress {
@@ -17,11 +19,16 @@ public class GzipCompress implements Compress {
 
     @Override
     public byte[] compress(byte[] bytes) {
+        // 如果要压缩的数组为空，抛出空指针异常
         if (bytes == null) {
             throw new NullPointerException("bytes is null");
         }
-        try (ByteArrayOutputStream out = new ByteArrayOutputStream();
-             GZIPOutputStream gzip = new GZIPOutputStream(out)) {
+
+        // 初始化 ByteArrayOutputStream、GZIPOutputStream
+        try (
+                ByteArrayOutputStream out = new ByteArrayOutputStream();
+                GZIPOutputStream gzip = new GZIPOutputStream(out)
+        ) {
             gzip.write(bytes);
             gzip.flush();
             gzip.finish();
@@ -33,11 +40,16 @@ public class GzipCompress implements Compress {
 
     @Override
     public byte[] decompress(byte[] bytes) {
+        // 如果要解压缩的数组为空，抛出空指针异常
         if (bytes == null) {
             throw new NullPointerException("bytes is null");
         }
-        try (ByteArrayOutputStream out = new ByteArrayOutputStream();
-             GZIPInputStream gunzip = new GZIPInputStream(new ByteArrayInputStream(bytes))) {
+
+        // 初始化 ByteArrayOutputStream、ByteArrayInputStream、GZIPInputStream
+        try (
+                ByteArrayOutputStream out = new ByteArrayOutputStream();
+                GZIPInputStream gunzip = new GZIPInputStream(new ByteArrayInputStream(bytes))
+        ) {
             byte[] buffer = new byte[BUFFER_SIZE];
             int n;
             while ((n = gunzip.read(buffer)) > -1) {

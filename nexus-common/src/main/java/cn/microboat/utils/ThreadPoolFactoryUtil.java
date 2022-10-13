@@ -7,34 +7,59 @@ import java.util.Map;
 import java.util.concurrent.*;
 
 /**
+ * 线程池工厂工具类
+ *
  * @author zhouwei
  */
 @Slf4j
 public final class ThreadPoolFactoryUtil {
 
     /**
-     * 通过 threadNamePrefix 来区分不同线程池（我们可以把相同 threadNamePrefix 的线程池看作是为同一业务场景服务）。
+     * 通过 threadNamePrefix 来区分不同线程池（把相同 threadNamePrefix 的线程池看作是为同一业务场景服务）。
      * key: threadNamePrefix
      * value: threadPool
      */
     private static final Map<String, ExecutorService> THREAD_POOLS = new ConcurrentHashMap<>();
 
     private ThreadPoolFactoryUtil() {
-
     }
 
+    /**
+     * 如果不存在线程池，就创建自定义线程池
+     * 只传入一个线程池前缀，默认使用自定义线程池配置，默认不为守护线程
+     *
+     * @param threadNamePrefix 线程名前缀
+     * @return ExecutorService
+     */
     public static ExecutorService createCustomThreadPoolIfAbsent(String threadNamePrefix) {
         CustomThreadPoolConfig customThreadPoolConfig = new CustomThreadPoolConfig();
         return createCustomThreadPoolIfAbsent(customThreadPoolConfig, threadNamePrefix, false);
     }
 
+    /**
+     * 如果不存在线程池，就创建自定义线程池
+     * 传入一个线程池前缀和自定义线程池配置，默认不为守护线程
+     *
+     * @param threadNamePrefix       线程名前缀
+     * @param customThreadPoolConfig 自定义线程池配置
+     * @return ExecutorService
+     */
     public static ExecutorService createCustomThreadPoolIfAbsent(String threadNamePrefix, CustomThreadPoolConfig customThreadPoolConfig) {
         return createCustomThreadPoolIfAbsent(customThreadPoolConfig, threadNamePrefix, false);
     }
 
+    /**
+     * 如果不存在线程池，就创建自定义线程池
+     * 传入一个线程池前缀、自定义线程池配置和是否为守护线程
+     *
+     * @param threadNamePrefix       线程名前缀
+     * @param customThreadPoolConfig 自定义线程池配置
+     * @param daemon                 是否为守护线程
+     * @return ExecutorService
+     */
     public static ExecutorService createCustomThreadPoolIfAbsent(CustomThreadPoolConfig customThreadPoolConfig, String threadNamePrefix, Boolean daemon) {
         ExecutorService threadPool = THREAD_POOLS.computeIfAbsent(threadNamePrefix, k -> createThreadPool(customThreadPoolConfig, threadNamePrefix, daemon));
-        // 如果 threadPool 被 shutdown 的话就重新创建一个
+        // 如果 threadPool 被 shutdown 或者 terminate 的话就重新创建一个
         if (threadPool.isShutdown() || threadPool.isTerminated()) {
             THREAD_POOLS.remove(threadNamePrefix);
             threadPool = createThreadPool(customThreadPoolConfig, threadNamePrefix, daemon);
@@ -48,19 +73,33 @@ public final class ThreadPoolFactoryUtil {
      */
     public static void shutDownAllThreadPool() {
         log.info("call shutDownAllThreadPool method");
+        // 将 Map 的 value 转成 Set 并创建并行流，对每一个 Set 中的元素循环
         THREAD_POOLS.entrySet().parallelStream().forEach(entry -> {
+            // 获取每个 entry 中的值 executorService，调用 shutdown 方法
             ExecutorService executorService = entry.getValue();
             executorService.shutdown();
             log.info("shut down thread pool [{}] [{}]", entry.getKey(), executorService.isTerminated());
             try {
-                executorService.awaitTermination(10, TimeUnit.SECONDS);
+                // 等待 10 秒，看看线程池到底有没有关闭，没有关闭就调用 shutdownNow 方法立即关闭
+                if (!executorService.awaitTermination(10, TimeUnit.SECONDS)) {
+                    executorService.shutdownNow();
+                }
             } catch (InterruptedException e) {
                 log.error("Thread pool never terminated");
+                // 抛出中断异常，调用 shutdownNow 方法立即关闭
                 executorService.shutdownNow();
             }
         });
     }
 
+    /**
+     * 创建线程池
+     *
+     * @param customThreadPoolConfig 自定义线程池配置
+     * @param threadNamePrefix 线程名称前缀
+     * @param daemon 是否为守护线程
+     * @return ExecutorService
+     * */
     private static ExecutorService createThreadPool(CustomThreadPoolConfig customThreadPoolConfig, String threadNamePrefix, Boolean daemon) {
         ThreadFactory threadFactory = createThreadFactory(threadNamePrefix, daemon);
         return new ThreadPoolExecutor(customThreadPoolConfig.getCorePoolSize(), customThreadPoolConfig.getMaximumPoolSize(),

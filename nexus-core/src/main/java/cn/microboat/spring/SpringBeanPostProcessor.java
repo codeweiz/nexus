@@ -17,6 +17,11 @@ import org.springframework.stereotype.Component;
 
 import java.lang.reflect.Field;
 
+/**
+ * Spring Bean 后置处理器
+ *
+ * @author zhouwei
+ */
 @Slf4j
 @Component
 public class SpringBeanPostProcessor implements BeanPostProcessor {
@@ -65,7 +70,6 @@ public class SpringBeanPostProcessor implements BeanPostProcessor {
                     e.printStackTrace();
                 }
             }
-
         }
         return bean;
     }

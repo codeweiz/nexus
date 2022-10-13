@@ -7,6 +7,8 @@ import org.springframework.core.type.filter.AnnotationTypeFilter;
 import java.lang.annotation.Annotation;
 
 /**
+ * 自定义扫描器
+ *
  * @author zhouwei
  */
 public class CustomScanner extends ClassPathBeanDefinitionScanner {

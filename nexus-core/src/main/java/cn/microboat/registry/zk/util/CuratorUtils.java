@@ -20,15 +20,45 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * @author zhouwei
+ */
 @Slf4j
 public final class CuratorUtils {
 
+    /**
+     * 基础休眠时间
+     */
     private static final int BASE_SLEEP_TIME = 1000;
+
+    /**
+     * 最大重试次数
+     */
     private static final int MAX_RETRIES = 3;
+
+    /**
+     * zookeeper 注册根路径
+     */
     public static final String ZK_REGISTER_ROOT_PATH = "/my-rpc";
+
+    /**
+     * 服务地址 Map
+     */
     private static final Map<String, List<String>> SERVICE_ADDRESS_MAP = new ConcurrentHashMap<>();
+
+    /**
+     * 服务路径 Set
+     */
     private static final Set<String> REGISTERED_PATH_SET = ConcurrentHashMap.newKeySet();
+
+    /**
+     * zookeeper 客户端
+     */
     private static CuratorFramework zkClient;
+
+    /**
+     * 默认 zookeeper 地址
+     */
     private static final String DEFAULT_ZOOKEEPER_ADDRESS = "127.0.0.1:2181";
 
     private CuratorUtils() {
@@ -36,8 +66,10 @@ public final class CuratorUtils {
 
     /**
      * Create persistent nodes. Unlike temporary nodes, persistent nodes are not removed when the client disconnects
+     * 创建永久节点，永久节点不会随着客户端断开连接而被移除
      *
-     * @param path node path
+     * @param zkClient zookeeper 客户端
+     * @param path     node path
      */
     public static void createPersistentNode(CuratorFramework zkClient, String path) {
         try {

@@ -5,6 +5,8 @@ import lombok.Getter;
 import lombok.ToString;
 
 /**
+ * RPC 响应码枚举
+ *
  * @author zhouwei
  */
 @AllArgsConstructor

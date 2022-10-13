@@ -3,6 +3,8 @@ package cn.microboat.exception;
 import cn.microboat.enums.RpcErrorMessageEnum;
 
 /**
+ * 封装异常类 RpcException
+ *
  * @author zhouwei
  */
 public class RpcException extends RuntimeException {

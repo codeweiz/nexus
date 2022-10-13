@@ -3,6 +3,8 @@ package cn.microboat.serialize;
 import cn.microboat.extension.SPI;
 
 /**
+ * 序列化接口
+ *
  * @author zhouwei
  */
 @SPI

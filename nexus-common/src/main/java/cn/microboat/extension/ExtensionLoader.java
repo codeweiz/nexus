@@ -15,29 +15,55 @@ import java.util.concurrent.ConcurrentHashMap;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 /**
+ * 注解的加载器
+ *
  * @author zhouwei
  */
 @Slf4j
 public class ExtensionLoader<T> {
 
+    /**
+     * 服务目录
+     */
     private static final String SERVICE_DIRECTORY = "META-INF/extensions/";
 
+    /**
+     * key：类
+     * value：ExtensionLoader
+     */
     private static final Map<Class<?>, ExtensionLoader<?>> EXTENSION_LOADERS = new ConcurrentHashMap<>();
 
+    /**
+     * key：类
+     * value：Object
+     */
     private static final Map<Class<?>, Object> EXTENSION_INSTANCES = new ConcurrentHashMap<>();
 
+    /**
+     * 类的类型
+     */
     private final Class<?> type;
 
+    /**
+     * key：String
+     * value：Holder
+     */
     private final Map<String, Holder<Object>> cachedInstances = new ConcurrentHashMap<>();
 
+    /**
+     * 对 Map 的包装
+     */
     private final Holder<Map<String, Class<?>>> cachedClasses = new Holder<>();
 
+    /**
+     * 构造器
+     */
     public ExtensionLoader(Class<?> type) {
         this.type = type;
     }
 
     /**
-     * 获取扩展加载器
+     * 根据 type 获取扩展加载器
      *
      * @param type 类型
      * @return ExtensionLoader
@@ -100,7 +126,7 @@ public class ExtensionLoader<T> {
     }
 
     /**
-     * 创建扩展
+     * 根据 name 创建扩展
      *
      * @param name 名称
      * @return T
@@ -123,10 +149,13 @@ public class ExtensionLoader<T> {
         return instance;
     }
 
+    /**
+     * 获取扩展类
+     */
     private Map<String, Class<?>> getExtensionClasses() {
-        // get the loaded extension class from the cache
+        // get the loaded extension class from the cache 从缓存中获取已加载的扩展类
         Map<String, Class<?>> classes = cachedClasses.getValue();
-        // double check
+        // double check 双重检查
         if (classes == null) {
             synchronized (cachedClasses) {
                 classes = cachedClasses.getValue();
@@ -141,6 +170,11 @@ public class ExtensionLoader<T> {
         return classes;
     }
 
+    /**
+     * 加载目录
+     *
+     * @param extensionClasses 扩展类
+     */
     private void loadDirectory(Map<String, Class<?>> extensionClasses) {
         String fileName = ExtensionLoader.SERVICE_DIRECTORY + type.getName();
         try {
@@ -158,6 +192,13 @@ public class ExtensionLoader<T> {
         }
     }
 
+    /**
+     * 加载资源
+     *
+     * @param extensionClasses 扩展类
+     * @param classLoader      类加载器
+     * @param resourceUrl      资源URL
+     */
     private void loadResource(Map<String, Class<?>> extensionClasses, ClassLoader classLoader, URL resourceUrl) {
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(resourceUrl.openStream(), UTF_8))) {
             String line;
